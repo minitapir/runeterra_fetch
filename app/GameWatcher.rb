@@ -47,16 +47,16 @@ class GameWatcher
         @game = nil
     end
 
-    def write_game(filename="result_#{Time.now}.txt")
+    def write_game(filename="result_#{Time.now.strftime('%Y-%m-%d_%H-%M-%S')}.txt")
         File.open("games/#{filename}", "w") { |f| 
-            f.write @game.to_output 
+            f.write JSON.generate(@game.to_output)
         }
     end
 
     def create_game(data)
         player = data["PlayerName"]
         opponent = data["OpponentName"]
-        @game = Game.new(player, opponent)
+        @game = Game.new(player, opponent, @verbose)
     end
 
     def update_game(data)

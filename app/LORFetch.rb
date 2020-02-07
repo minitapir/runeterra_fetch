@@ -7,7 +7,7 @@ module LORFetch
             uri = URI(url)
             response = RestClient.get(url)
             return JSON.parse(response.body)
-        rescue Errno::EADDRNOTAVAIL => e
+        rescue Errno::EADDRNOTAVAIL, Errno::ECONNREFUSED => e
             return {"GameState" => "Offline"}
         end
     end

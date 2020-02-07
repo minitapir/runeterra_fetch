@@ -2,12 +2,13 @@ require_relative './GameCard'
 require_relative './GameState'
 
 class Game
-    attr_accessor :player, :opponent, :game_states
+    attr_accessor :player, :opponent, :game_states, :verbose
 
-    def initialize(player, opponent) 
+    def initialize(player, opponent, verbose=false) 
         @player = player
         @opponent = opponent
         @game_states = [] 
+        @verbose = verbose
     end
 
     # Expecting data["Rectangles"]
@@ -40,7 +41,13 @@ class Game
     end
 
     def add_state(state)
-        @game_states << state if is_new?(state)
+        if is_new?(state)
+            @game_states << state
+            if(@verbose)
+                puts "Got new state ..."
+                puts to_output 
+            end
+        end
     end
 
     def to_output
