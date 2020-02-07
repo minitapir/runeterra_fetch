@@ -3,11 +3,10 @@ require 'rest-client'
 
 RSpec.describe LORFetch do
 
-    let(:response){ response = JSON.parse(LORFetch.fetch) }
+    let(:response){ LORFetch.fetch }
 
     context "when the game is not started" do
         it "fails to fetch data" do
-            response = LORFetch.fetch
             expect(response).to eq({"GameState" => "Offline"})
         end
     end
@@ -16,7 +15,7 @@ RSpec.describe LORFetch do
         context "when not in a game" do
             before do 
                 allow(RestClient)
-                .to receive_message_chain("get.parsed_response")
+                .to receive_message_chain("get.body")
                 .with(no_args)
                 .and_return('{"PlayerName":null,"OpponentName":null,"GameState":"Menus","Screen":{"ScreenWidth":2560,"ScreenHeight":1440},"Rectangles":[]}')
             end
@@ -30,7 +29,7 @@ RSpec.describe LORFetch do
         context "when in a game" do
             before do 
                 allow(RestClient)
-                .to receive_message_chain("get.parsed_response")
+                .to receive_message_chain("get.body")
                 .with(no_args)
                 .and_return('{"PlayerName":"MiniTapir","OpponentName":"Shirek","GameState":"InProgress","Screen":{"ScreenWidth":2560,"ScreenHeight":1440},"Rectangles":[{"CardID":889114000,"CardCode":"face","TopLeftX":239,"TopLeftY":954,"Width":156,"Height":156,"LocalPlayer":false},{"CardID":1295299980,"CardCode":"face","TopLeftX":239,"TopLeftY":641,"Width":156,"Height":156,"LocalPlayer":true}]}')
             end

@@ -66,7 +66,7 @@ module LORFetch
                     watcher.handle_data(response)
                     player = response["PlayerName"]
                     opponent = response["OpponentName"]
-                    expect(watcher.game).to eq( Game.new(player, opponent) )
+                    expect(watcher.game).to eq(Game.new(player, opponent))
                 end
             end
 

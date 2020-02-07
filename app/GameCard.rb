@@ -10,9 +10,4 @@ class GameCard
         @height = height
         @local_player = local_player
     end
-
-    def ==(other)
-        self.id == other.id &&
-        self.code == other.code
-    end
 end

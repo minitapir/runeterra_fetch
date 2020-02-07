@@ -10,18 +10,7 @@ class Game
     end
 
     def ==(other)
-        equal = self.player == other.player && self.opponent == other.opponent
-        if(self.cards.size == other.cards.size)
-            if(self.cards == [])
-                return true
-            else
-                equal &= self.cards.map{|card|
-                    other.cards.include?(card)
-                }.reduce(&:&)
-            end
-        else
-            equal = false
-        end
-        return equal
+        @player == other.player &&
+        @opponent == other.opponent 
     end
 end

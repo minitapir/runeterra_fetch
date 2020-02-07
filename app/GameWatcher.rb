@@ -41,7 +41,7 @@ class GameWatcher
     end
 
     def update_state(state)
-        if(@state == "Offline" && state == "Menus")
+        if(@state == "Offline" && state != "Offline")
             puts "Connected to Runeterra."
         elsif(@state == "Menus" && state == "InProgress")
             puts "Entering new game."
