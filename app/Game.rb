@@ -1,35 +1,57 @@
 require_relative './GameCard'
+require_relative './GameState'
 
 class Game
-    attr_accessor :player, :opponent, :cards
+    attr_accessor :player, :opponent, :game_states
 
-    # {"CardID":828414675,"CardCode":"face","TopLeftX":239,"TopLeftY":641,"Width":156,"Height":156,"LocalPlayer":true}]}
-    def initialize(player, opponent, cards) 
+    def initialize(player, opponent) 
         @player = player
         @opponent = opponent
-        @cards = []
-        set_cards(cards)
-        
+        @game_states = [] 
     end
 
-    def set_cards(cards)
-        cards.each do |c|
-            id = c["CardId"]
+    # Expecting data["Rectangles"]
+    def self.to_game_state(data)
+        cards = []
+        data.each do |c|
+            id = c["CardID"]
             code = c["CardCode"]
-            face = c["face"]
             tlx = c["TopLeftX"]
             tly = c["TopLeftY"]
             width = c["Width"]
             height = c["Height"]
             local_player = c["LocalPlayer"]
-            add = GameCard.new id, code, face, tlx, tly, width, height, local_player
-            @cards << add
+            add = GameCard.new(id, code, tlx, tly, width, height, local_player)
+            cards << add
         end
+        return GameState.new(cards)
     end
 
-    def ==(other)
-        @player == other.player &&
-        @opponent == other.opponent && 
-        @cards.map{|c| other.cards.include?(c) }.reduce(&:&)  
+    def is_new?(state)
+        is_new = false
+        if(@game_states.size == 0)
+            if(state.cards.size != 0)
+                is_new = true
+            end
+        else
+            is_new = @game_states.last != state
+        end
+        return is_new
+    end
+
+    def add_state(state)
+        @game_states << state if is_new?(state)
+    end
+
+    def to_output
+        json = {}
+        json["PlayerName"] = @player
+        json["OpponentName"] = @opponent
+        states = []
+        @game_states.each do |state|
+            states << state.to_output
+        end
+        json["GameStates"] = states
+        json
     end
 end

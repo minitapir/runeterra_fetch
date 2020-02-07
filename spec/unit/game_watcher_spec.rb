@@ -3,7 +3,7 @@ require_relative '../../app/Game'
 require_relative '../../app/LORFetch'
 
 module LORFetch
-    RSpec.describe "Runeterra Game Watcher" do
+    RSpec.describe "GameWatcher" do
 
         let(:watcher){ GameWatcher.new }
 
@@ -30,6 +30,12 @@ module LORFetch
                 watcher.handle_data(response)   
                 expect(watcher.state).to eq("Offline")
             end
+
+            it "should output waiting connexion" do
+                expect{
+                    GameWatcher.new(true)
+                }.to output("Waiting for Runeterra launch...\n").to_stdout
+            end
         end
 
         context "when the game is launched and not yet in a game" do
@@ -37,13 +43,20 @@ module LORFetch
             let(:response) { JSON.parse('{"PlayerName":null,"OpponentName":null,"GameState":"Menus","Screen":{"ScreenWidth":2560,"ScreenHeight":1440},"Rectangles":[]}') }
 
             it "should fetch correct data" do
-                expect(watcher.get_data).to eq (response)
+                expect(watcher.get_data).to eq(response)
             end
 
             it "should update to the corresponding GameWatcher status" do
                 expect{
                     watcher.handle_data(response)   
                 }.to change {watcher.state}.to("Menus")
+            end
+
+            it "should output connected" do
+                expect{
+                    watcher.verbose = true
+                    watcher.handle_data(response)
+                }.to output("Connected to Runeterra.\n").to_stdout
             end
         end
 
@@ -67,6 +80,13 @@ module LORFetch
                     watcher.handle_data(response)
                     expect(watcher.game).not_to be nil
                 end
+
+                it "should output new game" do
+                    expect{
+                        watcher.verbose = true
+                        watcher.handle_data(response)
+                    }.to output("Entering new game.\n").to_stdout
+                end
             end
 
             let(:response) { JSON.parse('{"PlayerName":"MiniTapir","OpponentName":"Anto","GameState":"InProgress","Screen":{"ScreenWidth":2560,"ScreenHeight":1440},"Rectangles":[{"CardID":828414675,"CardCode":"face","TopLeftX":239,"TopLeftY":641,"Width":156,"Height":156,"LocalPlayer":true}]}') }
@@ -76,15 +96,13 @@ module LORFetch
             end
 
             it "should fetch correct data" do
-                expect(watcher.get_data).to eq (response)
+                expect(watcher.get_data).to eq(response)
             end
 
             it "should update Game when a new state is fetched" do
+                watcher.game = Game.new("MiniTapir", "Anto")
                 watcher.handle_data(response)
-                player = response["PlayerName"]
-                opponent = response["OpponentName"]
-                cards = response["Rectangles"]
-                expect(watcher.game).to eq(Game.new(player, opponent, cards))
+                expect(watcher.game.game_states.size).to eq(1)
             end
         end
 
@@ -92,29 +110,41 @@ module LORFetch
 
             let(:response) { JSON.parse('{"PlayerName":"MiniTapir","OpponentName":"Anto","GameState":"Menus","Screen":{"ScreenWidth":2560,"ScreenHeight":1440},"Rectangles":[{"CardID":828414675,"CardCode":"face","TopLeftX":239,"TopLeftY":641,"Width":156,"Height":156,"LocalPlayer":true}]}') }
 
-            before do 
+            before(:each) do 
                 watcher.state = "InProgress"
-                watcher.game = 1337 # to pass != nil
-                watcher.handle_data(response)
-            end
-
-            after do 
-                Dir["games/*"].each do |gamefile|
-                    File.delete(gamefile)
-                end
+                watcher.game = Game.new("MiniTapir", "Anto")
             end
 
             it "should update the status to Menus" do
+                watcher.handle_data(response)
                 expect(watcher.state).to eq("Menus")
             end
 
-            it "should call the writing function" do
-                allow(watcher).to receive(:write_game).with("result.txt")
-                expect(File).to exist("games/result.txt")
+            it "should reset the Game to nil" do
+                watcher.handle_data(response)
+                expect(watcher.game).to eq nil
             end
 
-            it "should reset the Game to nil" do
-                expect(watcher.game).to eq nil
+            it "should output exiting game" do
+                expect{
+                    watcher.verbose = true
+                    watcher.handle_data(response)
+                }.to output("Exiting game.\n").to_stdout
+            end
+        end
+
+        context "when the client is closed" do
+            let(:response) { JSON.parse('{"GameState":"Offline"}') }
+
+            before(:each) do 
+                watcher.state = "Menus"
+            end
+
+            it "should output exiting client" do
+                expect{
+                    watcher.verbose = true
+                    watcher.handle_data(response)
+                }.to output("Disconnected from Runeterra.\n").to_stdout
             end
         end
     end
