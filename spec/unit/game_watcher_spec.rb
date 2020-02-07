@@ -100,7 +100,7 @@ module LORFetch
             end
 
             it "should update Game when a new state is fetched" do
-                watcher.game = Game.new("MiniTapir", "Anto")
+                watcher.game = Game.new("MiniTapir", "Anto", false, 200, 200)
                 watcher.handle_data(response)
                 expect(watcher.game.game_states.size).to eq(1)
             end
@@ -112,7 +112,7 @@ module LORFetch
 
             before(:each) do 
                 watcher.state = "InProgress"
-                watcher.game = Game.new("MiniTapir", "Anto")
+                watcher.game = Game.new("MiniTapir", "Anto", false, 200, 200)
             end
 
             it "should update the status to Menus" do

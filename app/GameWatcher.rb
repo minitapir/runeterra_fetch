@@ -56,7 +56,9 @@ class GameWatcher
     def create_game(data)
         player = data["PlayerName"]
         opponent = data["OpponentName"]
-        @game = Game.new(player, opponent, @verbose)
+        screen_width = data["Screen"]["ScreenWidth"]
+        screen_height = data["Screen"]["ScreenHeight"]
+        @game = Game.new(player, opponent, @verbose, screen_width, screen_height)
     end
 
     def update_game(data)

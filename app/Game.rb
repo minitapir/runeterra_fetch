@@ -2,13 +2,15 @@ require_relative './GameCard'
 require_relative './GameState'
 
 class Game
-    attr_accessor :player, :opponent, :game_states, :verbose
+    attr_accessor :player, :opponent, :game_states, :verbose, :screen_width, :screen_height
 
-    def initialize(player, opponent, verbose=false) 
+    def initialize(player, opponent, verbose=false, screen_width, screen_height) 
         @player = player
         @opponent = opponent
         @game_states = [] 
         @verbose = verbose
+        @screen_width = screen_width
+        @screen_height = screen_height
     end
 
     # Expecting data["Rectangles"]
@@ -43,10 +45,6 @@ class Game
     def add_state(state)
         if is_new?(state)
             @game_states << state
-            if(@verbose)
-                puts "Got new state ..."
-                puts to_output 
-            end
         end
     end
 
@@ -54,6 +52,8 @@ class Game
         json = {}
         json["PlayerName"] = @player
         json["OpponentName"] = @opponent
+        json["ScreenWidth"] = @screen_width
+        json["ScreenHeight"] = @screen_height
         states = []
         @game_states.each do |state|
             states << state.to_output

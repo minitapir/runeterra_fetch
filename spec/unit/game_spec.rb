@@ -5,7 +5,7 @@ require_relative '../../app/GameCard'
 module LORFetch
     RSpec.describe "Game" do
         
-        let(:game) { Game.new("Anto", "MiniTapir")}
+        let(:game) { Game.new("Anto", "MiniTapir", false, 200, 200)}
 
         context "was just created" do
             it "should have an empty GameState array" do
@@ -18,6 +18,11 @@ module LORFetch
             expect(game.opponent).to eq("MiniTapir")
         end
 
+        it "should have the correct screen dimensions" do
+            expect(game.screen_width).to eq(200)
+            expect(game.screen_height).to eq(200)
+        end
+        
         let(:data){ JSON.parse('{"PlayerName":"MiniTapir","OpponentName":"Anto","GameState":"InProgress","Screen":{"ScreenWidth":2560,"ScreenHeight":1440},"Rectangles":[{"CardID":828414675,"CardCode":"face","TopLeftX":239,"TopLeftY":641,"Width":156,"Height":156,"LocalPlayer":true}]}') }
         let(:card) { GameCard.new(828414675,"face", 239, 641, 156, 156, true) }
         let(:game_state) { GameState.new([card]) }

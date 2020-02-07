@@ -38,6 +38,7 @@ RSpec.describe LORFetch do
                 expect(response).to include("GameState" => "InProgress")
                 expect(response).to have_key("PlayerName")
                 expect(response).to have_key("OpponentName")
+                expect(response).to have_key("Screen")
             end
             
             it "cards placements should contain valid data" do
